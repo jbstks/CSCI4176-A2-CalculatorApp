@@ -3,12 +3,11 @@ package com.csci4176.a2.calculatorapp;
 import java.lang.String;
 
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.InputFilter;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -16,37 +15,24 @@ public class MainActivity extends AppCompatActivity {
 
     TextView output;
 
-    CardView oneButton;
-    CardView twoButton;
-    CardView threeButton;
-    CardView fourButton;
-    CardView fiveButton;
-    CardView sixButton;
-    CardView sevenButton;
-    CardView eightButton;
-    CardView nineButton;
-    CardView zeroButton;
+    // number buttons
+    CardView oneButton, twoButton, threeButton, fourButton, fiveButton, sixButton,  sevenButton,
+             eightButton, nineButton, zeroButton;
 
-    CardView plusButton;
-    CardView minusButton;
-    CardView multButton;
-    CardView divideButton;
-    CardView equalsButton;
+    // operator buttons
+    CardView plusButton, minusButton, multButton, divideButton, equalsButton;
 
-    CardView cButton;
-    CardView mcButton;
-    CardView mplusButton;
-    CardView mminusButton;
-    CardView mrButton;
+    // other buttons
+    CardView cButton, mcButton, mplusButton, mminusButton, mrButton, pointButton, posnegButton;
 
-    CardView pointButton;
-    CardView posnegButton;
-
+    // variables for calculation
     String operator = "";
     Double operand1 = null;
     Double operand2 = null;
     Double memory = 0.0;
+    boolean justCalculated = false;
 
+    // variables for formatting
     int maxLength = 10;
     InputFilter[] filters = new InputFilter[1];
 
@@ -57,9 +43,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // buttons
         output = findViewById(R.id.output);
 
+        // number buttons
         oneButton = findViewById(R.id.one_card);
         twoButton = findViewById(R.id.two_card);
         threeButton = findViewById(R.id.three_card);
@@ -71,18 +57,19 @@ public class MainActivity extends AppCompatActivity {
         nineButton = findViewById(R.id.nine_card);
         zeroButton = findViewById(R.id.zero_card);
 
+        // operator buttons
         plusButton = findViewById(R.id.plus_card);
         minusButton = findViewById(R.id.minus_card);
         multButton = findViewById(R.id.mult_card);
         divideButton = findViewById(R.id.divide_card);
         equalsButton = findViewById(R.id.equals_card);
 
+        // other buttons
         cButton = findViewById(R.id.c_card);
         mcButton = findViewById(R.id.mc_card);
         mplusButton = findViewById(R.id.mplus_card);
         mminusButton = findViewById(R.id.mminus_card);
         mrButton = findViewById(R.id.mr_card);
-
         pointButton = findViewById(R.id.point_card);
         posnegButton = findViewById(R.id.posneg_card);
 
@@ -157,11 +144,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-// ---- operator key presses -------------------------------------------------------------------------
+// ---- operator key presses -----------------------------------------------------------------------
         plusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("+");
+                //plusButton.setEnabled(false);
             }
         });
 
@@ -169,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("-");
+                minusButton.setEnabled(false);
             }
         });
 
@@ -176,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("*");
+                multButton.setEnabled(false);
             }
         });
 
@@ -183,14 +173,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("/");
+                divideButton.setEnabled(false);
             }
         });
 
         equalsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            if ( operand1 != null && isOperator(operator))
-                doCalculation();
+                if ( operand1 != null && isOperator(operator))
+                    doCalculation("");
+
+                plusButton.setEnabled(true);
+                minusButton.setEnabled(true);
+                multButton.setEnabled(true);
+                divideButton.setEnabled(true);
             }
         });
 
@@ -217,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         pointButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // case to account for extra decimal points
                 if (!output.getText().toString().contains(".")) {
                     maxLength++;
                     setMaxLength();
@@ -228,8 +225,17 @@ public class MainActivity extends AppCompatActivity {
         cButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reset();
+                // reset all values
+                operand1 = null;
+                operand2 = null;
+                operator = "";
+                memory = null;
+                justCalculated = false;
                 output.setText("0");
+
+                // set the max length back to 10
+                maxLength = 10;
+                setMaxLength();
             }
         });
 
@@ -245,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 formatOutput(memory);
-                //output.setText( memory.toString() );
             }
         });
 
@@ -264,6 +269,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Formats the output depending on if the number is a whole or not
+     *
+     * @param x the double that will be outputted
+     */
     private void formatOutput(double x) {
         // check if x is a whole number (this is for formatting purposes)
         if (x%1 == 0) {
@@ -289,19 +299,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Resets all values
-     */
-    private void reset() {
-        operand1 = null;
-        operand2 = null;
-        operator = "";
-        memory = null;
-        // Set the max length back to 10
-        maxLength = 10;
-        setMaxLength();
-    }
-
-    /**
      * Checks if a String is one of the following operators: +, -, *, /
      *
      * @param x the String in question
@@ -320,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
     private void numberKeyPress(String n) {
 
         // Set output to n if 0, append to end of output if not
-        if (output.getText().toString().equals("0"))
+        if (output.getText().toString().equals("0") || justCalculated)
             output.setText(n);
         else
             output.setText(output.getText() + n);
@@ -335,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
         // first operand and operator are set so complete calculation
         if ( operand1 != null && isOperator(operator)) {
-            doCalculation();
+            doCalculation(op);
         }
         // if not, store the number in output as the 1st operand, and the operator that was pressed
         else {
@@ -347,47 +344,38 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Completes calculation with the stored operand and operator, and the value from output.
+     *
+     * @param op the next operator to calculate with
      */
-    private void doCalculation() {
-        Double calc = 0.0;
+    private void doCalculation(String op) {
         operand2 = Double.parseDouble(output.getText().toString());
 
         switch (operator) {
             case "+" :
-                calc = operand1+operand2;
+                operand1 += operand2;
                 break;
 
             case "-" :
-                calc = operand1-operand2;
+                operand1 -= operand2;
                 break;
 
             case "/" :
-                calc = operand1/operand2;
+                operand1 /= operand2;
                 break;
 
             case "*" :
-                calc = operand1*operand2;
+                operand1 *= operand2;
                 break;
         }
 
+        // reset for formatting
         maxLength = 10;
-        formatOutput(calc);
-        // check if the calculated value is whole (this is for formatting purposes)
-       /* if (calc%1 == 0) {
-            if (String.valueOf(Math.round(calc)).contains("-")) maxLength++;
-            if (String.valueOf(Math.round(calc)).contains(".")) maxLength++;
-            setMaxLength();
-            output.setText(String.valueOf(Math.round(calc)));
-        }
-        else {
-            if (String.valueOf(calc).contains("-")) maxLength++;
-            if (String.valueOf(calc).contains(".")) maxLength++;
-            setMaxLength();
-            output.setText(String.valueOf(calc));
-        }*/
-        Log.d("test", "maxLength="+maxLength);
+        formatOutput(operand1);
 
-        // reset operands and operator
-        reset();
+        // set operator, if it was = then it will be "" again
+        operator = op;
+        justCalculated = true;
+        // reset operand2 as this is whatever is next inputted
+        operand2 = null;
     }
 }
