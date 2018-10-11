@@ -3,7 +3,6 @@ package com.csci4176.a2.calculatorapp;
 import java.lang.String;
 
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -11,6 +10,12 @@ import android.text.InputFilter;
 import android.view.View;
 import android.widget.TextView;
 
+/**
+ * Calculator Application
+ * Sets up the OnClickListeners for each button as well as doing the actual calculating
+ *
+ * @author Joanna Bistekos (B00710704)
+ */
 public class MainActivity extends AppCompatActivity {
 
     TextView output;
@@ -149,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("+");
-                //plusButton.setEnabled(false);
             }
         });
 
@@ -157,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("-");
-                minusButton.setEnabled(false);
             }
         });
 
@@ -165,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("*");
-                multButton.setEnabled(false);
             }
         });
 
@@ -173,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 operatorKeyPress("/");
-                divideButton.setEnabled(false);
             }
         });
 
@@ -182,11 +183,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if ( operand1 != null && isOperator(operator))
                     doCalculation("");
-
-                plusButton.setEnabled(true);
-                minusButton.setEnabled(true);
-                multButton.setEnabled(true);
-                divideButton.setEnabled(true);
             }
         });
 
@@ -229,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 operand1 = null;
                 operand2 = null;
                 operator = "";
-                memory = null;
+                memory = 0.0;
                 justCalculated = false;
                 output.setText("0");
 
@@ -251,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 formatOutput(memory);
+                justCalculated = true;
             }
         });
 
@@ -258,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 memory += Double.valueOf(output.getText().toString());
+                output.setText("0");
             }
         });
 
@@ -265,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 memory -= Double.valueOf(output.getText().toString());
+                output.setText("0");
             }
         });
     }
@@ -317,8 +316,10 @@ public class MainActivity extends AppCompatActivity {
     private void numberKeyPress(String n) {
 
         // Set output to n if 0, append to end of output if not
-        if (output.getText().toString().equals("0") || justCalculated)
+        if (output.getText().toString().equals("0") || justCalculated) {
             output.setText(n);
+            justCalculated = false;
+        }
         else
             output.setText(output.getText() + n);
     }
